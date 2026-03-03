@@ -1,0 +1,63 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+skinparam packageStyle rectangle
+left to right direction
+
+together {
+    package "Adapter: Driving" {
+        class MemberController
+        class BillingController
+    }
+
+    package "Application" {
+        class MemberApplicationService
+        class BillingApplicationService
+    }
+}
+
+together {
+    package "Port: In (API)" {
+        interface MemberUseCase
+        interface BillingUseCase
+    }
+
+    package "Domain Layer" {
+        class MemberService
+        class Member <<Domain Entity>>
+    }
+
+    package "Port: Out (SPI)" {
+        interface MemberQueryPort
+        interface MemberCommandPort
+    }
+}
+
+package "Adapter: Driven" {
+    class MemberAdapter
+}
+
+MemberController --> MemberApplicationService : uses
+BillingController --> BillingApplicationService : uses
+
+MemberApplicationService --> MemberUseCase : uses
+MemberApplicationService --> BillingUseCase : uses
+MemberApplicationService --> MemberQueryPort : uses
+
+BillingApplicationService --> MemberUseCase : uses
+BillingApplicationService --> BillingUseCase : uses
+
+MemberService ..|> MemberUseCase : implements
+
+MemberService --> Member : uses
+
+MemberService --> MemberCommandPort : uses
+
+MemberAdapter ..|> MemberQueryPort : implements
+MemberAdapter ..|> MemberCommandPort : implements
+
+@enduml

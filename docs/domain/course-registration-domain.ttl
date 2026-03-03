@@ -1,0 +1,300 @@
+# core domain models
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# business domain models
+@prefix crs:  <https://example.org/onto/crs#> .
+
+crs:
+    a                owl:Ontology ;
+    rdfs:label       "Course Registration System"@en ;
+    rdfs:label       "수강 신청 시스템"@ko ;
+    rdfs:comment     "An ontology for the Course Registration POC project."@en ;
+    sh:declare       [ sh:prefix    "crs" ;
+                       sh:namespace "https://example.org/onto/crs#"^^xsd:anyURI ; ] ;
+    rdfs:isDefinedBy crs: ;
+.
+
+#################################################################
+# Classes (Entities)
+#################################################################
+
+crs:Student
+    a                rdfs:Class, sh:NodeShape ;
+    rdfs:label       "Student"@en ;
+    rdfs:comment     "A student registered in the academic system."@en ;
+    sh:property      crs:Student-name ;
+    sh:property      crs:Student-enroll ;
+    sh:property      crs:Student-completed ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Student-name
+    a                sh:PropertyShape ;
+    sh:path          crs:name ;
+    sh:datatype      rdf:langString ;
+    sh:minCount      1 ;
+    sh:maxCount      1 ;
+    sh:name          "name"@en, "학생 명"@ko ;
+    sh:description   "The name of the student."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Student-enroll
+    a                sh:PropertyShape ;
+    sh:path          crs:enrolledIn ;
+    sh:class         crs:Course ;
+    sh:minCount      0 ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Student-completed
+    a                sh:PropertyShape ;
+    sh:path          crs:completed ;
+    sh:class         crs:Course ;
+    sh:name          "completed"@en, "이수했다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Student-department
+    a                sh:PropertyShape ;
+    sh:path          crs:belongsTo ;
+    sh:class         crs:Department ;
+    sh:minCount      1 ;
+    sh:maxCount      1 ;
+    sh:name          "belongs to"@en, "속한다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course
+    a            rdfs:Class, sh:NodeShape ;
+    rdfs:label   "Course"@en ;
+    rdfs:comment "The conceptual blueprint of a subject."@en ;
+    sh:property  crs:Course-name ;
+    sh:property  crs:Course-timeslot ;
+    sh:property  crs:Course-prerequisite ;
+    sh:property  crs:Course-students ;
+.
+
+crs:Course-name
+    a                sh:PropertyShape ;
+    sh:path          crs:name ;
+    sh:datatype      rdf:langString ;
+    sh:minCount      1 ;
+    sh:maxCount      1 ;
+    sh:name          "name"@en, "강의 명"@ko ;
+    sh:description   "The name of the course."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course-timeslot
+    a                sh:PropertyShape ;
+    sh:path          crs:timeslot ;
+    sh:class         crs:Timeslot ;
+    sh:minCount      1 ;
+    sh:name          "timeslot"@en, "강의 시간"@ko ;
+    sh:description   "The timeslots when the course is offered."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course-prerequisite
+    a                sh:PropertyShape ;
+    sh:path          crs:requires ;
+    sh:class         crs:Course ;
+    sh:name          "requires"@en, "요구한다"@ko ;
+    sh:description   "Courses required before enrollment."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course-students
+    a                sh:PropertyShape ;
+    sh:path          [ sh:inversePath crs:enrolledIn ] ;
+    sh:node          crs:Student ;
+    sh:name          "enrolled students"@en, "수강생 목록"@ko ;
+    sh:description   "Students who have registered for this course."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course-status
+    a                sh:PropertyShape ;
+    sh:path          crs:hasStatus ;
+    sh:class         crs:CourseStatus ;
+    sh:minCount      1 ;
+    sh:maxCount      1 ;
+    sh:name          "has status"@en, "상태를 가진다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Course-capacity
+    a                sh:PropertyShape ;
+    sh:path          crs:allowsCapacity ;
+    sh:datatype      xsd:integer ;
+    sh:minCount      1 ;
+    sh:maxCount      1 ;
+    sh:name          "allows capacity"@en, "정원을 허용한다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:enrolledIn
+    a                rdf:Property ;
+    rdfs:label       "enrolled in"@en ;
+    rdfs:comment     "Indicates a course that a student is currently taking."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:completed
+    a                rdf:Property ;
+    rdfs:label       "completed"@en, "이수했다"@ko ;
+    rdfs:comment     "Indicates a course that the student has successfully finished."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:requires
+    a                rdf:Property ;
+    rdfs:label       "requires"@en, "요구한다"@ko ;
+    rdfs:comment     "Indicates a prerequisite course that must be completed first."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:timeslot
+    a                rdf:Property ;
+    rdfs:label       "timeslot"@en, "강의 시간"@ko ;
+    rdfs:comment     "The specific schedule for a resource."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:name
+    a                rdf:Property ;
+    rdfs:label       "name"@en ;
+    rdfs:comment     "The name of the resource."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:belongsTo
+    a                rdf:Property ;
+    rdfs:label       "belongs to"@en, "속한다"@ko ;
+    rdfs:comment     "Indicates the department a student is affiliated with."@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:hasStatus
+    a                rdf:Property ;
+    rdfs:label       "has status"@en, "상태를 가진다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:allowsCapacity
+    a                rdf:Property ;
+    rdfs:label       "allows capacity"@en, "정원을 허용한다"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Timeslot
+    a                rdfs:Class ;
+    rdfs:label       "Timeslot"@en, "강의 시간"@ko ;
+    rdfs:comment     "Allowed timeslots for course (Mon-Fri, AM/PM)"@en ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:CourseStatus
+    a                rdfs:Class ;
+    rdfs:label       "Course Status"@en, "강의 상태"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:Department
+    a                rdfs:Class ;
+    rdfs:label       "Department"@en, "학과"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+#################################################################
+# Timeslot Instances (월~금, 오전/오후)
+#################################################################
+
+crs:MonAM
+    a                crs:Timeslot ;
+    rdfs:label       "Monday AM"@en, "월요일 오전"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:MonPM
+    a                crs:Timeslot ;
+    rdfs:label       "Monday PM"@en, "월요일 오후"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:TueAM
+    a                crs:Timeslot ;
+    rdfs:label       "Tuesday AM"@en, "화요일 오전"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:TuePM
+    a                crs:Timeslot ;
+    rdfs:label       "Tuesday PM"@en, "화요일 오후"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:WedAM
+    a                crs:Timeslot ;
+    rdfs:label       "Wednesday AM"@en, "수요일 오전"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:WedPM
+    a                crs:Timeslot ;
+    rdfs:label       "Wednesday PM"@en, "수요일 오후"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:ThuAM
+    a                crs:Timeslot ;
+    rdfs:label       "Thursday AM"@en, "목요일 오전"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:ThuPM
+    a                crs:Timeslot ;
+    rdfs:label       "Thursday PM"@en, "목요일 오후"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:FriAM
+    a                crs:Timeslot ;
+    rdfs:label       "Friday AM"@en, "금요일 오전"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+crs:FriPM
+    a                crs:Timeslot ;
+    rdfs:label       "Friday PM"@en, "금요일 오후"@ko ;
+    rdfs:isDefinedBy crs: ;
+.
+
+#################################################################
+# CourseStatus Instances (개설됨, 폐강됨)
+#################################################################
+
+crs:Active
+    a                crs:CourseStatus ;
+    rdfs:label       "Active"@en, "개설됨"@ko ;
+.
+
+crs:Canceled
+    a                crs:CourseStatus ;
+    rdfs:label       "Canceled"@en, "폐강됨"@ko ;
+.
+
+#################################################################
+# Department Instances (컴퓨터공학과)
+#################################################################
+
+crs:ComputerScience
+    a                crs:Department ;
+    rdfs:label       "Computer Science"@en, "컴퓨터공학과"@ko ;
+    rdfs:isDefinedBy crs: ;
+.

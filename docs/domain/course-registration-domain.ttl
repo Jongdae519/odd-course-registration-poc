@@ -104,6 +104,7 @@ crs:Course-prerequisite
     a                sh:PropertyShape ;
     sh:path          crs:requires ;
     sh:class         crs:Course ;
+    sh:maxCount      1 ;
     sh:name          "requires"@en, "요구한다"@ko ;
     sh:description   "Courses required before enrollment."@en ;
     rdfs:isDefinedBy crs: ;
@@ -280,13 +281,13 @@ crs:FriPM
 #################################################################
 
 crs:Active
-    a                crs:CourseStatus ;
-    rdfs:label       "Active"@en, "개설됨"@ko ;
+    a          crs:CourseStatus ;
+    rdfs:label "Active"@en, "개설됨"@ko ;
 .
 
 crs:Canceled
-    a                crs:CourseStatus ;
-    rdfs:label       "Canceled"@en, "폐강됨"@ko ;
+    a          crs:CourseStatus ;
+    rdfs:label "Canceled"@en, "폐강됨"@ko ;
 .
 
 #################################################################

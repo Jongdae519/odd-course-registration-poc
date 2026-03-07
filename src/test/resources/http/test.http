@@ -1,0 +1,89 @@
+### 환경 변수 설정
+@host = http://localhost:8080/api/v1
+
+### ===================================================================
+### 시나리오 1: 수강신청 도메인 로직(Ontology Rules) 검증
+### ===================================================================
+
+### 1-1. Bob의 '고급 Java' 수강신청 (성공해야 함 - 기초 Java 이수 완료)
+POST {{host}}/enrollments
+Content-Type: application/json
+
+{
+  "studentId": "S2",
+  "courseId": "ADV-JAVA"
+}
+> {%
+    client.test("Bob은 선수과목을 이수했으므로 수강신청 성공", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### 1-2. Charlie의 '고급 Java' 수강신청 (성공해야 함 - 타 학과여도 기초 Java 이수 완료)
+POST {{host}}/enrollments
+Content-Type: application/json
+
+{
+  "studentId": "S3",
+  "courseId": "ADV-JAVA"
+}
+
+
+### 1-3. Alice의 '고급 Java' 수강신청 (실패해야 함 - 선수과목 미이수)
+POST {{host}}/enrollments
+Content-Type: application/json
+
+{
+  "studentId": "S1",
+  "courseId": "ADV-JAVA"
+}
+> {%
+    client.test("Alice는 기초 Java를 듣지 않아 MissingPrerequisite 상태 반환", function() {});
+%}
+
+
+### 1-4. David의 '고급 Java' 수강신청 (실패해야 함 - 정원 2명 초과)
+# 앞서 Bob(S2)과 Charlie(S3)가 성공해서 정원(2)이 꽉 찬 상태입니다.
+POST {{host}}/enrollments
+Content-Type: application/json
+
+{
+  "studentId": "S4",
+  "courseId": "ADV-JAVA"
+}
+> {%
+    client.test("정원 초과로 CapacityExceeded 상태 반환", function() {});
+%}
+
+
+### ===================================================================
+### 시나리오 2: 나비효과 트리거 (과목 폐강)
+### ===================================================================
+
+### 2-1. 교수님 개인 사정으로 '기초 Java' 과목 전격 폐강 (Command)
+PATCH {{host}}/courses/BASIC-JAVA/cancel
+Content-Type: application/json
+
+
+### 2-2. David가 뒤늦게 '기초 Java' 수강신청 (실패해야 함 - 과목 폐강됨)
+POST {{host}}/enrollments
+Content-Type: application/json
+
+{
+  "studentId": "S4",
+  "courseId": "BASIC-JAVA"
+}
+> {%
+    client.test("과목이 폐강되었으므로 CourseCanceled 상태 반환", function() {});
+%}
+
+
+### ===================================================================
+### 시나리오 3: AI 파급효과 분석 (Query)
+### ===================================================================
+
+### 3-1. AI(LLM)에게 던져줄 원시 팩트 데이터(Ripple Effect Data) 덤프 추출
+# 이 엔드포인트를 호출하여 나온 JSON 응답 결과 전체 복사해서
+# 1단계에서 만든 온톨로지(Turtle) 파일과 함께 AI 프롬프트에 붙여넣습니다.
+GET {{host}}/analysis/ripple-effect-data
+Accept: application/json

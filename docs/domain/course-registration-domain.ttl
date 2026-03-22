@@ -29,6 +29,7 @@ crs:Student
     sh:property      crs:Student-name ;
     sh:property      crs:Student-enroll ;
     sh:property      crs:Student-completed ;
+    sh:property      crs:Student-department ;
     rdfs:isDefinedBy crs: ;
 .
 
@@ -77,6 +78,7 @@ crs:Course
     sh:property  crs:Course-timeslot ;
     sh:property  crs:Course-prerequisite ;
     sh:property  crs:Course-students ;
+    sh:property  crs:Course-capacity ;
 .
 
 crs:Course-name
